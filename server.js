@@ -11,8 +11,11 @@ const options = {
 const express = require('express');
 const app = express();
 const knex = require('knex')(options);
-const Users = () => knex('users')
-const Recipes = () => knex('recipes')
+const Users = () => knex('users');
+const Recipes = () => knex('recipes');
+const Ingredients = () => knex('ingredients');
+const Meals = () => knex('meals');
+const MealComponents = () => knex('meals_components');
 const port = process.env.PORT || 5000;
 
 // Log server running and listening to port
@@ -23,23 +26,59 @@ app.get('/express_backend', (req, res) => {
     res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
 });
 
-app.get('/user/:username', (req, res) => {
-    console.log('params...')
-    console.log(req.params.username)
-    Users()
-        .select('id', 'username', 'email', 'created_at')
-        .where('username', req.params.username)
-        .then(data => {
-            res.status(200).send({ data });
+app.get('/user/:username', async (req, res) => {
+    try {
+        const user = await Users()
+            .select('id', 'username', 'email', 'created_at')
+            .where('username', req.params.username)
+            .first();
+
+        if (user) {
+            res.status(200).send({ data: user });
+        } else {
+            res.status(404).send({ error: 'User not found' });
         }
-        )
+    } catch (error) {
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
 });
 
-app.get('/recipes', (req, res) => {
-    Recipes()
-        .then(data => {
-            console.log(data)
-            res.status(200).send({ data })
-        })
+app.get('/recipes', async (req, res) => {
+    try {
+        const recipes = await Recipes().select('*');
+        res.status(200).send({ data: recipes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
 });
 
+app.get('/ingredients', async (req, res) => {
+    try {
+        const ingredients = await Ingredients().select('*');
+        res.status(200).send({ data: ingredients });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/meals', async (req, res) => {
+    try {
+        const meals = await Meals().select('*');
+        res.status(200).send({ data: meals });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('meal-components', async (req, res) => {
+    try {
+        const meal_components = await MealComponents().select('*');
+        res.status(200).send({ data: meal_components });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
