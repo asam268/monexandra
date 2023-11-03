@@ -10,6 +10,7 @@ const options = {
 
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const knex = require('knex')(options);
 const Users = () => knex('users');
 const Recipes = () => knex('recipes');
@@ -18,10 +19,12 @@ const Meals = () => knex('meals');
 const MealComponents = () => knex('meals_components');
 const port = process.env.PORT || 5000;
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 // Log server running and listening to port
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
-// create a GET route
+// GET Requests
 app.get('/express_backend', (req, res) => {
     res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
 });
@@ -77,6 +80,50 @@ app.get('meal-components', async (req, res) => {
     try {
         const meal_components = await MealComponents().select('*');
         res.status(200).send({ data: meal_components });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/recipes', async (req, res) => {
+    try {
+        const { name, category, instructions, created_by } = req.body;
+
+        if (!name || !category || !instructions || !created_by) {
+            return res.status(400).send({ error: 'Missing required fields' });
+        }
+
+        const recipe = await Recipes().insert({
+            name,
+            category,
+            instructions,
+            created_by
+        });
+
+        res.status(201).send({ data: recipe });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/ingredients', async (req, res) => {
+    try {
+        const { name, quantity, unit, recipe_id } = req.body;
+
+        if (!name || !quantity || !unit || !recipe_id) {
+            return res.status(400).send({ error: 'Missing required fields' });
+        }
+
+        const ingredient = await Ingredients().insert({
+            name,
+            quantity,
+            unit,
+            recipe_id
+        });
+
+        res.status(201).send({ data: ingredient });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Internal Server Error' });
