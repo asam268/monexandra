@@ -86,6 +86,7 @@ app.get('meal-components', async (req, res) => {
     }
 });
 
+// POST requests
 app.post('/recipes', async (req, res) => {
     try {
         const { name, category, instructions, created_by } = req.body;
@@ -124,6 +125,45 @@ app.post('/ingredients', async (req, res) => {
         });
 
         res.status(201).send({ data: ingredient });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/meals', async (req, res) => {
+    try {
+        const { name } = req.body
+
+        if (!name) {
+            return res.status(400).send({ error: 'Missing required fields' });
+        }
+
+        const meal = await Meals().insert({
+            name
+        });
+
+        res.status(201).send({ data: meal })
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/meal-components', async (req, res) => {
+    try {
+        const { meal_id, recipe_id } = req.body
+
+        if (!meal_id || !recipe_id) {
+            return res.status(400).send({ error: 'Missing required fields' });
+        }
+
+        const meal_component = await MealComponents().insert({
+            meal_id,
+            recipe_id
+        });
+
+        res.status(201).send({ data: meal_component });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Internal Server Error' });
