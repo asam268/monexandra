@@ -12,6 +12,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const knex = require('knex')(options);
+const bcrypt = require('bcrypt');
 const Users = () => knex('users');
 const Recipes = () => knex('recipes');
 const Ingredients = () => knex('ingredients');
@@ -87,6 +88,36 @@ app.get('meal-components', async (req, res) => {
 });
 
 // POST requests
+app.post('/users', async (req, res) => {
+    try {
+        const { username, password, email } = req.body
+
+        if (!username || !password || !email) {
+            return res.status(400).send({ error: 'Missing required fields' });
+        }
+
+        const user_exists = await Users().where({ username }).first()
+
+        if (user_exists) {
+            return res.status(400).send({ error: 'Username already exists' });
+        }
+
+        const hashpass = await bcrypt.hash(password, 10);
+
+        const user = await Users().insert({
+            username,
+            password: hashpass,
+            email,
+            created_at: knex.fn.now()
+        });
+
+        res.status(201).send({ data: user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
 app.post('/recipes', async (req, res) => {
     try {
         const { name, category, instructions, created_by } = req.body;
