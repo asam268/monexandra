@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const options = require(__dirname + "/./../db/knexfile");
 const knex = require("knex")(options.development);
 const Users = () => knex("users");
 
 // Route to create a new user
-router.post("/users", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     // Extract the required fields from the request body
     const { username, password, email } = req.body;
