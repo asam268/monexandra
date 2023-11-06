@@ -1,48 +1,37 @@
+const express = require("express");
+const router = express.Router();
+const options = require(__dirname + "/./../db/knexfile");
+const knex = require("knex")(options.development);
+const Users = () => knex("users");
 
+router.post("/users", async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
 
-// app.get("/user/:username", async (req, res) => {
-//   try {
-//     const user = await Users()
-//       .select("id", "username", "email", "created_at")
-//       .where("username", req.params.username)
-//       .first();
+    if (!username || !password || !email) {
+      return res.status(400).send({ error: "Missing required fields" });
+    }
 
-//     if (user) {
-//       res.status(200).send({ data: user });
-//     } else {
-//       res.status(404).send({ error: "User not found" });
-//     }
-//   } catch (error) {
-//     res.status(500).send({ error: "Internal Server Error" });
-//   }
-// });
+    const user_exists = await Users().where({ username }).first();
 
-// app.post("/users", async (req, res) => {
-//   try {
-//     const { username, password, email } = req.body;
+    if (user_exists) {
+      return res.status(400).send({ error: "Username already exists" });
+    }
 
-//     if (!username || !password || !email) {
-//       return res.status(400).send({ error: "Missing required fields" });
-//     }
+    const hashpass = await bcrypt.hash(password, 10);
 
-//     const user_exists = await Users().where({ username }).first();
+    const user = await Users().insert({
+      username,
+      password: hashpass,
+      email,
+      created_at: knex.fn.now(),
+    });
 
-//     if (user_exists) {
-//       return res.status(400).send({ error: "Username already exists" });
-//     }
+    res.status(201).send({ data: user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
 
-//     const hashpass = await bcrypt.hash(password, 10);
-
-//     const user = await Users().insert({
-//       username,
-//       password: hashpass,
-//       email,
-//       created_at: knex.fn.now(),
-//     });
-
-//     res.status(201).send({ data: user });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ error: "Internal Server Error" });
-//   }
-// });
+module.exports = router;
