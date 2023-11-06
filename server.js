@@ -1,18 +1,19 @@
-require('dotenv').config()
-const options = {
-  client: "mysql2",
-  connection: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  },
-};
+require("dotenv").config();
+// const options = {
+//   client: "mysql2",
+//   connection: {
+//     host: process.env.DB_HOST,
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     database: process.env.DB_NAME,
+//   },
+// };
+const options = require("./db/knexfile");
 
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const knex = require("knex")(options);
+const knex = require("knex")(options.development);
 const bcrypt = require("bcrypt");
 const Users = () => knex("users");
 const Recipes = () => knex("recipes");
@@ -23,6 +24,8 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/recipes', require('./routes/recipes_routes'));
 // Log server running and listening to port
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
@@ -48,15 +51,15 @@ app.get("/user/:username", async (req, res) => {
   }
 });
 
-app.get("/recipes", async (req, res) => {
-  try {
-    const recipes = await Recipes().select("*");
-    res.status(200).send({ data: recipes });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Internal Server Error" });
-  }
-});
+// app.get("/recipes", async (req, res) => {
+//   try {
+//     const recipes = await Recipes().select("*");
+//     res.status(200).send({ data: recipes });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: "Internal Server Error" });
+//   }
+// });
 
 app.get("/ingredients", async (req, res) => {
   try {
@@ -119,27 +122,27 @@ app.post("/users", async (req, res) => {
   }
 });
 
-app.post("/recipes", async (req, res) => {
-  try {
-    const { name, category, instructions, created_by } = req.body;
+// app.post("/recipes", async (req, res) => {
+//   try {
+//     const { name, category, instructions, created_by } = req.body;
 
-    if (!name || !category || !instructions || !created_by) {
-      return res.status(400).send({ error: "Missing required fields" });
-    }
+//     if (!name || !category || !instructions || !created_by) {
+//       return res.status(400).send({ error: "Missing required fields" });
+//     }
 
-    const recipe = await Recipes().insert({
-      name,
-      category,
-      instructions,
-      created_by,
-    });
+//     const recipe = await Recipes().insert({
+//       name,
+//       category,
+//       instructions,
+//       created_by,
+//     });
 
-    res.status(201).send({ data: recipe });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Internal Server Error" });
-  }
-});
+//     res.status(201).send({ data: recipe });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: "Internal Server Error" });
+//   }
+// });
 
 app.post("/ingredients", async (req, res) => {
   try {
