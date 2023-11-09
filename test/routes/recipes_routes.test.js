@@ -52,11 +52,11 @@ describe("Recipes Routes", () => {
   });
 
   it("should handle errors in GET route", (done) => {
-    const mockError = new Error('Database error');
+    const mockError = new Error("Database error");
     const mockSelect = sinon.stub().rejects(mockError);
     const mockRecipesDb = sinon.stub().returns({ select: mockSelect });
 
-    sinon.replace(routes, 'Recipes', mockRecipesDb);
+    sinon.replace(routes, "Recipes", mockRecipesDb);
 
     chai
       .request(app)
