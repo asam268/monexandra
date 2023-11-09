@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const options = require(__dirname + "/./../db/knexfile");
-const knex = require("knex")(options.development);
-const Recipes = () => knex("recipes");
+const { getRecipes, createRecipe } = require(
+  __dirname + "/./../db/controllers/recipes_controller",
+);
 
 // Route to get all recipes
 router.get("/", async (req, res) => {
   try {
     // Fetch all recipes from the database
-    const recipes = await Recipes().select("*");
+    const recipes = await getRecipes();
 
     // Send a successful response with the list of recipes
     res.status(200).send({ data: recipes });
@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
     }
 
     // Insert the new recipe into the database
-    const recipe = await Recipes().insert({
+    const recipe = await createRecipe({
       name,
       category,
       instructions,
