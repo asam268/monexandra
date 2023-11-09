@@ -13,7 +13,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
-app.use("/", require("./routes/root_routes"));
+// TODO: Fix root routes
+// app.use("/", require("./routes/root_routes"));
 app.use("/recipes", require("./routes/recipes_routes"));
 app.use("/users", require("./routes/users_routes"));
 app.use("/ingredients", require("./routes/ingredients_routes"));
