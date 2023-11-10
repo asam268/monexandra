@@ -1,5 +1,4 @@
 const express = require("express");
-const { getIngredients } = require("../db/controllers/ingredients_controller");
 const router = express.Router();
 const { getIngredients, createIngredient } = require(
   __dirname + "/./../db/controllers/ingredients_controller",

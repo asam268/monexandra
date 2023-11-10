@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const options = require(__dirname + "/./../db/knexfile");
-const knex = require("knex")(options.development);
-const Meals = () => knex("meals");
+const { getMeals, createMeal } = require(
+  __dirname + "/./../db/controllers/meals_controller",
+);
 
 router.get("/", async (req, res) => {
   try {
-    const meals = await Meals().select("*");
+    const meals = await getMeals();
     res.status(200).send({ data: meals });
   } catch (error) {
     console.error(error);
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send({ error: "Missing required fields" });
     }
 
-    const meal = await Meals().insert({
+    const meal = await createMeal({
       name,
     });
 
