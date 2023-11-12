@@ -1,8 +1,11 @@
 const chai = require("chai");
 const sinon = require("sinon");
+// const sandbox = require("sinon").createSandbox();
 const chaiHttp = require("chai-http");
 const { expect } = chai;
 const express = require("express");
+// const { getRecipes, createRecipe } = require(__dirname + "/./../../db/controllers/recipes_controller");
+const recipesController = require(__dirname + "/./../../db/controllers/recipes_controller");
 
 chai.use(chaiHttp);
 
@@ -51,19 +54,31 @@ describe("Recipes Routes", () => {
       });
   });
 
-  it("should handle errors in GET route", (done) => {
+});
+
+describe("Error Handling", () => {
+  let app;
+  beforeEach(() => {
     const mockError = new Error("Database error");
-    const mockSelect = sinon.stub().rejects(mockError);
-    const mockRecipesDb = sinon.stub().returns({ select: mockSelect });
-
-    sinon.replace(routes, "Recipes", mockRecipesDb);
-
+    // const mockSelect = sinon.stub().rejects(mockError);
+    // const mockRecipesDb = sinon.stub().returns({ select: mockSelect });
+    // sandbox.stub(recipesController, "getRecipes").value(mockError);
+    const mockGetRecipes = sinon.stub().rejects(mockError);
+    sinon.replace(recipesController, "getRecipes", mockGetRecipes);
+    app = createFakeServer();
+  });
+  it("should handle errors in GET route", (done) => {
+  
+    // sinon.replace(routes, , mockGetRecipes)
+  
+    
     chai
       .request(app)
       .get("/recipes")
       .end((err, res) => {
         expect(res).to.have.status(500);
         expect(res.body).to.have.property("error");
+        mockGetRecipes.restore();
         done();
       });
   });
