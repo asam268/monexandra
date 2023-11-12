@@ -5,7 +5,9 @@ const chaiHttp = require("chai-http");
 const { expect } = chai;
 const express = require("express");
 // const { getRecipes, createRecipe } = require(__dirname + "/./../../db/controllers/recipes_controller");
-const recipesController = require(__dirname + "/./../../db/controllers/recipes_controller");
+const recipesController = require(
+  __dirname + "/./../../db/controllers/recipes_controller",
+);
 
 chai.use(chaiHttp);
 
@@ -53,7 +55,6 @@ describe("Recipes Routes", () => {
         done();
       });
   });
-
 });
 
 describe("Error Handling", () => {
@@ -68,10 +69,8 @@ describe("Error Handling", () => {
     app = createFakeServer();
   });
   it("should handle errors in GET route", (done) => {
-  
     // sinon.replace(routes, , mockGetRecipes)
-  
-    
+
     chai
       .request(app)
       .get("/recipes")
